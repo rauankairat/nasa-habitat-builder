@@ -37,18 +37,21 @@ export default function Home() {
 
   const stats = {
     crew: modules.filter((m) => m.type === "sleep").length * 2,
-    food: modules.filter((m) => m.type === "food").length * 30,
-    waste: modules.filter((m) => m.type === "waste").length * 5, //edit
+    food_needed: modules.filter((m) => m.type === "sleep").length * 3,
+    food_have: modules.filter((m) => m.type === "food").length * 30,
+    waste_have: modules.filter((m) => m.type === "waste").length * 5, //edit
+    waste_needed: modules.filter((m) => m.type === "sleep").length * 5 , //edit
     storage: modules.filter((m) => m.type === "storage").length * 5, //edit
-    agro: modules.filter((m) => m.type === "agro").length * 5, //edit
-    water: modules.filter((m) => m.type === "water").length * 5, //edit
+    water_needed : modules.filter((m) => m.type === "sleep").length * 5+ modules.filter((m) => m.type === "food").length * 5, //edit, //edit
+    water_have: modules.filter((m) => m.type === "water").length * 5, //edit
     comms: modules.filter((m) => m.type === "comms").length * 5, //edit
     corecontrol: modules.filter((m) => m.type === "corecontrol").length * 5, //edit
     medical: modules.filter((m) => m.type === "medical").length * 5, //edit
     exercise: modules.filter((m) => m.type === "exercise").length * 5, //edit
     labs: modules.filter((m) => m.type === "labs").length * 5, //edit
     recreation: modules.filter((m) => m.type === "recreation").length * 5, //edit
-    power: modules.length * 5,
+    power_needed: modules.filter((m) => m.type === "sleep").length * 5 + modules.filter((m) => m.type === "food").length * 5 + modules.filter((m) => m.type === "water").length * 5 + modules.filter((m) => m.type === "waste").length * 5 + modules.filter((m) => m.type === "comms").length * 5 + modules.filter((m) => m.type === "medical").length * 5 + modules.filter((m) => m.type === "exercise").length * 5 + modules.filter((m) => m.type === "labs").length * 5 + modules.filter((m) => m.type === "recreation").length * 5 + modules.filter((m) => m.type === "corecontrol").length * 5,
+    power_have: modules.filter((m) => m.type === "power").length * 5,
   };
 
   return (
@@ -118,7 +121,7 @@ export default function Home() {
               className="bg-green-500 px-2 py-1 rounded"
               onClick={() => addModule("food")}
             >
-              Food Storage
+              Agriculture/Hydro
             </button>
             <button 
               className="bg-gray-500 px-2 py-1 rounded" 
@@ -133,42 +136,48 @@ export default function Home() {
               Storage/Logistics
             </button>
             <button 
+              className="bg-violet-500 px-2 py-1 rounded" 
+              onClick={()=> addModule("power")}
+            >
+              Power
+            </button>
+            <button 
               className="bg-purple-500 px-2 py-1 rounded" 
               onClick={()=> addModule("water")}
             >
               Water
             </button>
-                        <button 
+            <button 
               className="bg-amber-500 px-2 py-1 rounded" 
               onClick={()=> addModule("comms")}
             >
               Communication
             </button>
-                        <button 
+            <button 
               className="bg-pink-500 px-2 py-1 rounded" 
               onClick={()=> addModule("corecontrol")}
             >
               Central Command
             </button>
-                        <button 
+            <button 
               className="bg-yellow-500 px-2 py-1 rounded" 
               onClick={()=> addModule("medical")}
             >
               Medical
             </button>
-                        <button 
+            <button 
               className="bg-cyan-500 px-2 py-1 rounded" 
               onClick={()=> addModule("exercise")}
             >
               Exercise
             </button>
-                        <button 
+            <button 
               className="bg-fuchsia-500 px-2 py-1 rounded" 
               onClick={()=> addModule("labs")}
             >
               Laboratory/Research
             </button>
-                        <button 
+            <button 
               className="bg-stone-500 px-2 py-1 rounded" 
               onClick={()=> addModule("recreation")}
             >
@@ -183,8 +192,14 @@ export default function Home() {
               </h2>
               <ul className="text-sm">
                 <li>Crew Capacity: {stats.crew}</li>
-                <li>Food Days: {stats.food}</li>
-                <li>Power: {stats.power} kW</li>
+                <li>Food: {stats.food_needed}/{stats.food_have}</li>
+                <li>Water Needed: {stats.water_needed}/{stats.water_have}</li>
+                <li>Waste: {stats.waste_needed}/{stats.waste_have}</li>
+                <li>Storage Space: {stats.storage}</li>
+                <li>Bandwidth: {stats.comms}</li>
+                <li>Medical Capacity: {stats.medical}</li>
+                <li>Work Station Capacity: {stats.labs}</li>
+                <li>Power: {stats.power_needed}/{stats.power_have} kW</li>
               </ul>
             </div>
           </div>
