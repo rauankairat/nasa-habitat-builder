@@ -46,7 +46,7 @@ const Module = ({
   const meshRef = createRef<any>();
   const controlRef = createRef<any>();
 
-  const [size, setSize] = useState<any>();
+  const [size, setSize] = useState<any>({ x: 0.5, y: 0.5, z: 0.5 });
   useEffect(() => {
     if (!meshRef.current) return;
 
@@ -59,7 +59,7 @@ const Module = ({
     if (isSelected) {
       setSelectedSize(size);
     }
-  }, [size]);
+  }, [size, isSelected]);
 
   return (
     <TransformControls

@@ -34,12 +34,17 @@ export default function Home() {
     type: string;
     id: number;
     color: string;
+    stats: Record<string, number>;
   };
   const [modules, setModules] = useState<moduleType[]>([]);
   const [selectedModule, setSelectedModule] = useState<moduleType>();
   const [crewLimit, setCrewLimit] = useState(10);
 
-  const addModule = (type: string, color: string) => {
+  const addModule = (
+    type: string,
+    color: string,
+    stats?: Record<string, number>
+  ) => {
     const currentCrew = modules.filter((m) => m.type === "sleep").length * 2;
 
     if (type === "sleep" && currentCrew + 2 > crewLimit) {
@@ -48,9 +53,17 @@ export default function Home() {
       );
       return;
     }
+
+    const moduleStats = stats || defaultModuleStats[type] || {};
+
     setModules((prev) => [
       ...prev,
-      { type, id: modules[modules.length - 1]?.id + 1 || 0, color },
+      {
+        type,
+        id: modules[modules.length - 1]?.id + 1 || 0,
+        color,
+        stats: moduleStats,
+      },
     ]);
   };
 
@@ -108,6 +121,61 @@ export default function Home() {
       modules.filter((m) => m.type === "recreation").length * 5 +
       modules.filter((m) => m.type === "corecontrol").length * 5,
     power_have: modules.filter((m) => m.type === "power").length * 5,
+  };
+
+  const defaultModuleStats: Record<string, Record<string, number>> = {
+    sleep: {
+      crewCapacity: 2, // 2 crew per sleep module
+      power: 5, // kW
+      food: 3, // food units needed
+      water: 5, // water units needed
+      waste: 5, // waste units generated
+    },
+    storage: {
+      storageSpace: 10, // m^3
+    },
+    food: {
+      power: 3, // kW
+      foodGenerated: 20, // food units produced
+      foodNeeded: 0, // optional if hydroponics requires none?
+      waterUsage: 5, // water units used
+    },
+    water: {
+      power: 2, // kW
+      waterGenerated: 20, // water units produced
+      waterNeeded: 0, // water units consumed
+    },
+    comms: {
+      power: 2,
+      crewCapacity: 0,
+      bandwidth: 10, // arbitrary bandwidth units
+    },
+    corecontrol: {
+      power: 5,
+    },
+    waste: {
+      power: 2, // kW
+      wasteCapacity: 10, // units of waste processed
+    },
+    power: {
+      powerGenerated: 20,
+    },
+    medical: {
+      power: 3,
+      medicalCapacity: 5, // crew that can be treated
+    },
+    exercise: {
+      power: 3,
+      totalCapacity: 5, // number of crew that can use at once
+    },
+    recreation: {
+      power: 2,
+      recCapacity: 5, // number of crew using
+    },
+    labs: {
+      power: 4,
+      workStationCapacity: 5, // number of crew supported
+    },
   };
 
   return (
@@ -194,12 +262,6 @@ export default function Home() {
                     setCrewLimit(val === "" ? 0 : parseInt(val));
                   }}
                 />
-                <h3>Habitat Name</h3>
-                <input
-                  type="text"
-                  placeholder=""
-                  className="bg-white w-full p-1 text-black text-center rounded-sm"
-                />
               </div>
             </div>
 
@@ -207,9 +269,9 @@ export default function Home() {
               <h2 className="text-lg text-green-400 font-semibold">
                 Module Adder
               </h2>
-              <div className="flex flex-wrap gap-2">
+              <div className="grid grid-cols-2 gap-4 text-sm">
                 <button
-                  className="bg-blue-500 px-2 py-1 rounded mr-2"
+                  className="bg-blue-500 px-2 py-1 rounded"
                   onClick={() => addModule("sleep", "#3B82F6")}
                 >
                   Sleep Pod
@@ -362,7 +424,12 @@ export default function Home() {
               ]}
             >
               <capsuleGeometry args={[1.2, 2, 10, 16]} />
-              <meshStandardMaterial color="royalblue" wireframe />
+              <meshStandardMaterial
+                color="#00d4ff"
+                wireframe
+                emissive="#0088ff"
+                emissiveIntensity={0.3}
+              />
             </mesh>
           )}
 
@@ -377,7 +444,12 @@ export default function Home() {
               ref={habitatRef}
             >
               <torusGeometry args={[3, 0.8, 16, 100]} />
-              <meshStandardMaterial color="royalblue" wireframe />
+              <meshStandardMaterial
+                color="#00d4ff"
+                wireframe
+                emissive="#0088ff"
+                emissiveIntensity={0.3}
+              />
             </mesh>
           )}
 
@@ -392,7 +464,6 @@ export default function Home() {
                 module={module}
                 setSelectedSize={setSelectedSize}
               />
-              <meshStandardMaterial color="royalblue" wireframe />
             </mesh>
           ))}
         </Canvas>
