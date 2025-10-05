@@ -7,8 +7,6 @@ import Module from "./components/mesh";
 import { Box3, Vector3 } from "three";
 import { GlobalUnitMultiplier } from "./utils";
 
-import { useFrame } from "@react-three/fiber";
-
 export default function Home() {
   const orbitRef = useRef<any>(null);
   const habitatRef = useRef<any>(null);
@@ -39,8 +37,17 @@ export default function Home() {
   };
   const [modules, setModules] = useState<moduleType[]>([]);
   const [selectedModule, setSelectedModule] = useState<moduleType>();
+  const [crewLimit, setCrewLimit] = useState(10);
 
   const addModule = (type: string, color: string) => {
+    const currentCrew = modules.filter((m) => m.type === "sleep").length * 2;
+
+    if (type === "sleep" && currentCrew + 2 > crewLimit) {
+      alert(
+        `Crew capacity limit reached (${currentCrew}/${crewLimit}). Remove a sleep pod to add more crew.`
+      );
+      return;
+    }
     setModules((prev) => [
       ...prev,
       { type, id: modules[modules.length - 1]?.id + 1 || 0, color },
@@ -155,6 +162,32 @@ export default function Home() {
                   })()}
               </div>
             </div>
+            <div>
+              <h2 className="text-lg text-green-400 font-semibold">
+                Set Preferences
+              </h2>
+
+              <div className="mt-3 text-sm flex flex-col gap-2">
+                <h3>Crew capacity limit</h3>
+                <input
+                  type="number"
+                  placeholder="1"
+                  className="bg-white w-full p-1 text-black text-center rounded-sm"
+                  value={crewLimit === 0 ? "" : crewLimit}
+                  onChange={(e) => {
+                    const val = e.target.value;
+                    setCrewLimit(val === "" ? 0 : parseInt(val));
+                  }}
+                />
+                <h3>Habitat Name</h3>
+                <input
+                  type="text"
+                  placeholder=""
+                  className="bg-white w-full p-1 text-black text-center rounded-sm"
+                />
+              </div>
+            </div>
+
             <div className="flex flex-col gap-3">
               <h2 className="text-lg text-green-400 font-semibold">
                 Module Adder
@@ -234,7 +267,9 @@ export default function Home() {
                 Resources
               </h2>
               <ul className="text-sm">
-                <li>Crew Capacity: {stats.crew}</li>
+                <li>
+                  Crew Capacity: {stats.crew} / {crewLimit}
+                </li>
                 <li>Food Days: {stats.food}</li>
                 <li>Power: {stats.power} kW</li>
               </ul>
