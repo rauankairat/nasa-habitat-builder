@@ -230,9 +230,9 @@ export default function Home() {
 
   return (
     <div className="flex h-screen">
-      <div className="h-full overflow-y-scroll pb-20 pr-4 w-110 bg-neutral-900 text-white ">
+      <div className="h-full overflow-y-scroll pb-20 pr-4 min-w-100 bg-neutral-900 text-white ">
         {selectedModule === undefined ? (
-          <div className="w-110 py-10 px-5 bg-neutral-900 flex flex-col gap-16">
+          <div className="w-100 py-10 px-5 bg-neutral-900 flex flex-col gap-16">
             <div className="flex flex-col gap-3">
               <h2 className="text-lg text-green-400 font-semibold">
                 Habitat Frame
@@ -544,7 +544,7 @@ export default function Home() {
             </div>
           </div>
         ) : (
-          <div className="w-110 py-10 px-5 bg-neutral-900 flex flex-col gap-4">
+          <div className="w-100 py-10 px-5 bg-neutral-900 flex flex-col gap-4">
             <h1 className="text-xl font-semibold">
               Selected:{" "}
               <span className="text-green-400">
