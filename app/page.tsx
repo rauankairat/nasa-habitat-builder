@@ -4,9 +4,12 @@ import { useState, useRef, useEffect } from "react";
 import { Canvas } from "@react-three/fiber";
 import { Environment, OrbitControls } from "@react-three/drei";
 import Module from "./components/mesh";
+import { Box3, Vector3 } from "three";
+import { GlobalUnitMultiplier } from "./utils";
 
 export default function Home() {
   const orbitRef = useRef<any>(null);
+  const habitatRef = useRef<any>(null);
 
   const [shape, setShape] = useState("capsule");
   const [sizes, setSizes] = useState([
@@ -24,16 +27,57 @@ export default function Home() {
     },
   ]);
 
-  type moduleType = { type: string; id: number; size?: number[] };
+  const [habitatSize, setHabitatSize] = useState({ x: 0, y: 0, z: 0 });
+  const [selectedSize, setSelectedSize] = useState({ x: 0, y: 0, z: 0 });
+
+  type moduleType = {
+    type: string;
+    id: number;
+    color: string;
+  };
   const [modules, setModules] = useState<moduleType[]>([]);
   const [selectedModule, setSelectedModule] = useState<moduleType>();
+  const [crewLimit, setCrewLimit] = useState(10);
 
-  const addModule = (type: string) => {
+  const addModule = (type: string, color: string) => {
+    const currentCrew = modules.filter((m) => m.type === "sleep").length * 2;
+
+    if (type === "sleep" && currentCrew + 2 > crewLimit) {
+      alert(
+        `Crew capacity limit reached (${currentCrew}/${crewLimit}). Remove a sleep pod to add more crew.`
+      );
+      return;
+    }
     setModules((prev) => [
       ...prev,
-      { type, id: modules[modules.length - 1]?.id + 1 || 0 },
+      { type, id: modules[modules.length - 1]?.id + 1 || 0, color },
     ]);
   };
+
+  const checkSize = () => {
+    if (!habitatRef.current) return;
+    const box = new Box3().setFromObject(habitatRef.current);
+    const size = new Vector3();
+    box.getSize(size);
+
+    setHabitatSize({
+      x: size.x * GlobalUnitMultiplier,
+      y: size.y * GlobalUnitMultiplier,
+      z: size.z * GlobalUnitMultiplier,
+    });
+  };
+
+  useEffect(() => {
+    const timeout = setTimeout(checkSize, 1000);
+
+    return () => clearTimeout(timeout);
+  }, []);
+
+  useEffect(() => {
+    const timeout = setTimeout(checkSize, 100);
+
+    return () => clearTimeout(timeout);
+  }, [sizes, shape]);
 
   const stats = {
     crew: modules.filter((m) => m.type === "sleep").length * 2,
@@ -74,12 +118,13 @@ export default function Home() {
                   className="text-white w-full p-1 rounded"
                 >
                   <option value="capsule">Capsule</option>
+                  <option value="torus">Torus</option>
                 </select>
               </div>
 
               <div className="text-sm">
                 <label className="block text-neutral-200 font-light mb-1">
-                  Change Habitat Size
+                  Change Habitat Scale
                 </label>
                 <div className="flex justify-evenly">
                   {sizes.map((size, i) => (
@@ -104,86 +149,126 @@ export default function Home() {
                     </div>
                   ))}
                 </div>
+                {habitatRef.current &&
+                  (() => {
+                    const box = new Box3().setFromObject(habitatRef.current);
+                    const size = new Vector3();
+                    box.getSize(size);
+
+                    return (
+                      <div className="flex justify-evenly gap-2 mt-2">
+                        <p>{habitatSize.x.toFixed(2)}m</p>
+                        <p>{habitatSize.y.toFixed(2)}m</p>
+                        <p>{habitatSize.z.toFixed(2)}m</p>
+                      </div>
+                    );
+                  })()}
               </div>
             </div>
+            <div>
+              <h2 className="text-lg text-green-400 font-semibold">
+                Set Preferences
+              </h2>
+
+              <div className="mt-3 text-sm flex flex-col gap-2">
+                <h3>Crew capacity limit</h3>
+                <input
+                  type="number"
+                  placeholder="1"
+                  className="bg-white w-full p-1 text-black text-center rounded-sm"
+                  value={crewLimit === 0 ? "" : crewLimit}
+                  onChange={(e) => {
+                    const val = e.target.value;
+                    setCrewLimit(val === "" ? 0 : parseInt(val));
+                  }}
+                />
+                <h3>Habitat Name</h3>
+                <input
+                  type="text"
+                  placeholder=""
+                  className="bg-white w-full p-1 text-black text-center rounded-sm"
+                />
+              </div>
+            </div>
+
             <div className="flex flex-col gap-3">
               <h2 className="text-lg text-green-400 font-semibold">
                 Module Adder
               </h2>
-            <div className="flex flex-wrap gap-2">
-            <button
-              className="bg-blue-500 px-2 py-1 rounded mr-2"
-              onClick={() => addModule("sleep")}
-            >
-              Sleep Pod
-            </button>
-            <button
-              className="bg-green-500 px-2 py-1 rounded"
-              onClick={() => addModule("food")}
-            >
-              Agriculture/Hydro
-            </button>
-            <button 
-              className="bg-gray-500 px-2 py-1 rounded" 
-              onClick={()=> addModule("waste")}
-            >
-              Waste
-            </button>
-            <button 
-              className="bg-red-500 px-2 py-1 rounded" 
-              onClick={()=> addModule("storage")}
-            >
-              Storage/Logistics
-            </button>
-            <button 
-              className="bg-violet-500 px-2 py-1 rounded" 
-              onClick={()=> addModule("power")}
-            >
-              Power
-            </button>
-            <button 
-              className="bg-purple-500 px-2 py-1 rounded" 
-              onClick={()=> addModule("water")}
-            >
-              Water
-            </button>
-            <button 
-              className="bg-amber-500 px-2 py-1 rounded" 
-              onClick={()=> addModule("comms")}
-            >
-              Communication
-            </button>
-            <button 
-              className="bg-pink-500 px-2 py-1 rounded" 
-              onClick={()=> addModule("corecontrol")}
-            >
-              Central Command
-            </button>
-            <button 
-              className="bg-yellow-500 px-2 py-1 rounded" 
-              onClick={()=> addModule("medical")}
-            >
-              Medical
-            </button>
-            <button 
-              className="bg-cyan-500 px-2 py-1 rounded" 
-              onClick={()=> addModule("exercise")}
-            >
-              Exercise
-            </button>
-            <button 
-              className="bg-fuchsia-500 px-2 py-1 rounded" 
-              onClick={()=> addModule("labs")}
-            >
-              Laboratory/Research
-            </button>
-            <button 
-              className="bg-stone-500 px-2 py-1 rounded" 
-              onClick={()=> addModule("recreation")}
-            >
-              Crew Common Quarters
-            </button>
-          </div>
+              <div className="flex flex-wrap gap-2">
+                <button
+                  className="bg-blue-500 px-2 py-1 rounded mr-2"
+                  onClick={() => addModule("sleep", "#3B82F6")}
+                >
+                  Sleep Pod
+                </button>
+                <button
+                  className="bg-green-500 px-2 py-1 rounded"
+                  onClick={() => addModule("food", "#22C55E")}
+                >
+                  Food Storage
+                </button>
+                <button
+                  className="bg-gray-500 px-2 py-1 rounded"
+                  onClick={() => addModule("waste", "#6B7280")}
+                >
+                  Waste
+                </button>
+                <button
+                  className="bg-red-500 px-2 py-1 rounded"
+                  onClick={() => addModule("storage", "#EF4444")}
+                >
+                  Storage/Logistics
+                </button>
+                 <button 
+                 className="bg-violet-500 px-2 py-1 rounded" 
+                 onClick={()=> addModule("power","#8B5CF6")}
+                >
+                  Power
+                </button>
+                <button
+                  className="bg-purple-500 px-2 py-1 rounded"
+                  onClick={() => addModule("water", "#A855F7")}
+                >
+                  Water
+                </button>
+                <button
+                  className="bg-amber-500 px-2 py-1 rounded"
+                  onClick={() => addModule("comms", "#F59E0B")}
+                >
+                  Communication
+                </button>
+                <button
+                  className="bg-pink-500 px-2 py-1 rounded"
+                  onClick={() => addModule("corecontrol", "#EC4899")}
+                >
+                  Central Command
+                </button>
+                <button
+                  className="bg-yellow-500 px-2 py-1 rounded"
+                  onClick={() => addModule("medical", "#EAB308")}
+                >
+                  Medical
+                </button>
+                <button
+                  className="bg-cyan-500 px-2 py-1 rounded"
+                  onClick={() => addModule("exercise", "#06B6D4")}
+                >
+                  Exercise
+                </button>
+                <button
+                  className="bg-fuchsia-500 px-2 py-1 rounded"
+                  onClick={() => addModule("labs", "#D946EF")}
+                >
+                  Laboratory/Research
+                </button>
+                <button
+                  className="bg-stone-500 px-2 py-1 rounded"
+                  onClick={() => addModule("recreation", "#78716C")}
+                >
+                  Crew Common Quarters
+                </button>
+              </div>
             </div>
 
             <div className="flex flex-col gap-3">
@@ -191,7 +276,7 @@ export default function Home() {
                 Resources
               </h2>
               <ul className="text-sm">
-                <li>Crew Capacity: {stats.crew}</li>
+                <li>Crew Capacity: {stats.crew} / {crewLimit}</li>
                 <li>Food: {stats.food_needed}/{stats.food_have}</li>
                 <li>Water Needed: {stats.water_needed}/{stats.water_have}</li>
                 <li>Waste: {stats.waste_needed}/{stats.waste_have}</li>
@@ -213,6 +298,12 @@ export default function Home() {
             </h1>
             <p className="font-semibold capitalize">
               Module-Type: {selectedModule.type}
+            </p>
+
+            <p>
+              {(selectedSize.x * GlobalUnitMultiplier).toFixed(2)}m X{" "}
+              {(selectedSize.y * GlobalUnitMultiplier).toFixed(2)}m X{" "}
+              {(selectedSize.z * GlobalUnitMultiplier).toFixed(2)}m
             </p>
 
             <button
@@ -241,13 +332,29 @@ export default function Home() {
 
           {shape === "capsule" && (
             <mesh
+              ref={habitatRef}
               scale={[
                 2 * (parseFloat(sizes[0].value) || 1),
                 1.2 * (parseFloat(sizes[1].value) || 1),
                 2 * (parseFloat(sizes[2].value) || 1),
               ]}
             >
-              <capsuleGeometry args={[1.2, 1, 10, 16]} />
+              <capsuleGeometry args={[1.2, 2, 10, 16]} />
+              <meshStandardMaterial color="royalblue" wireframe />
+            </mesh>
+          )}
+
+          {shape === "torus" && (
+            <mesh
+              scale={[
+                1 * (parseFloat(sizes[0].value) || 1),
+                1 * (parseFloat(sizes[1].value) || 1),
+                1 * (parseFloat(sizes[2].value) || 1),
+              ]}
+              rotation={[Math.PI / 2, 0, 0]}
+              ref={habitatRef}
+            >
+              <torusGeometry args={[3, 0.8, 16, 100]} />
               <meshStandardMaterial color="royalblue" wireframe />
             </mesh>
           )}
@@ -256,11 +363,14 @@ export default function Home() {
             <mesh key={module.id}>
               <Module
                 isSelected={selectedModule == module}
-                selectThis={() => setSelectedModule(module)}
-                unSelectThis={() => setSelectedModule(undefined)}
+                selectThis={() => {
+                  setSelectedModule(module);
+                }}
                 orbitRef={orbitRef}
                 module={module}
+                setSelectedSize={setSelectedSize}
               />
+              <meshStandardMaterial color="royalblue" wireframe />
             </mesh>
           ))}
         </Canvas>
