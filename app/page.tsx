@@ -84,9 +84,11 @@ export default function Home() {
     food_needed: modules.filter((m) => m.type === "sleep").length * 3,
     food_have: modules.filter((m) => m.type === "food").length * 30,
     waste_have: modules.filter((m) => m.type === "waste").length * 5, //edit
-    waste_needed: modules.filter((m) => m.type === "sleep").length * 5 , //edit
+    waste_needed: modules.filter((m) => m.type === "sleep").length * 5, //edit
     storage: modules.filter((m) => m.type === "storage").length * 5, //edit
-    water_needed : modules.filter((m) => m.type === "sleep").length * 5+ modules.filter((m) => m.type === "food").length * 5, //edit, //edit
+    water_needed:
+      modules.filter((m) => m.type === "sleep").length * 5 +
+      modules.filter((m) => m.type === "food").length * 5, //edit, //edit
     water_have: modules.filter((m) => m.type === "water").length * 5, //edit
     comms: modules.filter((m) => m.type === "comms").length * 5, //edit
     corecontrol: modules.filter((m) => m.type === "corecontrol").length * 5, //edit
@@ -94,15 +96,25 @@ export default function Home() {
     exercise: modules.filter((m) => m.type === "exercise").length * 5, //edit
     labs: modules.filter((m) => m.type === "labs").length * 5, //edit
     recreation: modules.filter((m) => m.type === "recreation").length * 5, //edit
-    power_needed: modules.filter((m) => m.type === "sleep").length * 5 + modules.filter((m) => m.type === "food").length * 5 + modules.filter((m) => m.type === "water").length * 5 + modules.filter((m) => m.type === "waste").length * 5 + modules.filter((m) => m.type === "comms").length * 5 + modules.filter((m) => m.type === "medical").length * 5 + modules.filter((m) => m.type === "exercise").length * 5 + modules.filter((m) => m.type === "labs").length * 5 + modules.filter((m) => m.type === "recreation").length * 5 + modules.filter((m) => m.type === "corecontrol").length * 5,
+    power_needed:
+      modules.filter((m) => m.type === "sleep").length * 5 +
+      modules.filter((m) => m.type === "food").length * 5 +
+      modules.filter((m) => m.type === "water").length * 5 +
+      modules.filter((m) => m.type === "waste").length * 5 +
+      modules.filter((m) => m.type === "comms").length * 5 +
+      modules.filter((m) => m.type === "medical").length * 5 +
+      modules.filter((m) => m.type === "exercise").length * 5 +
+      modules.filter((m) => m.type === "labs").length * 5 +
+      modules.filter((m) => m.type === "recreation").length * 5 +
+      modules.filter((m) => m.type === "corecontrol").length * 5,
     power_have: modules.filter((m) => m.type === "power").length * 5,
   };
 
   return (
     <div className="flex h-screen">
-      <div className="h-full w-80 bg-neutral-900 text-white">
+      <div className="h-full overflow-scroll pb-20 pr-4 w-90 bg-neutral-900 text-white ">
         {selectedModule === undefined ? (
-          <div className="w-80 py-10 px-5 bg-neutral-900 flex flex-col gap-16">
+          <div className="w-90 py-10 px-5 bg-neutral-900 flex flex-col gap-16">
             <div className="flex flex-col gap-3">
               <h2 className="text-lg text-green-400 font-semibold">
                 Habitat Frame
@@ -220,9 +232,9 @@ export default function Home() {
                 >
                   Storage/Logistics
                 </button>
-                 <button 
-                 className="bg-violet-500 px-2 py-1 rounded" 
-                 onClick={()=> addModule("power","#8B5CF6")}
+                <button
+                  className="bg-violet-500 px-2 py-1 rounded"
+                  onClick={() => addModule("power", "#8B5CF6")}
                 >
                   Power
                 </button>
@@ -276,20 +288,30 @@ export default function Home() {
                 Resources
               </h2>
               <ul className="text-sm">
-                <li>Crew Capacity: {stats.crew} / {crewLimit}</li>
-                <li>Food: {stats.food_needed}/{stats.food_have}</li>
-                <li>Water Needed: {stats.water_needed}/{stats.water_have}</li>
-                <li>Waste: {stats.waste_needed}/{stats.waste_have}</li>
+                <li>
+                  Crew Capacity: {stats.crew} / {crewLimit}
+                </li>
+                <li>
+                  Food: {stats.food_needed}/{stats.food_have}
+                </li>
+                <li>
+                  Water Needed: {stats.water_needed}/{stats.water_have}
+                </li>
+                <li>
+                  Waste: {stats.waste_needed}/{stats.waste_have}
+                </li>
                 <li>Storage Space: {stats.storage}</li>
                 <li>Bandwidth: {stats.comms}</li>
                 <li>Medical Capacity: {stats.medical}</li>
                 <li>Work Station Capacity: {stats.labs}</li>
-                <li>Power: {stats.power_needed}/{stats.power_have} kW</li>
+                <li>
+                  Power: {stats.power_needed}/{stats.power_have} kW
+                </li>
               </ul>
             </div>
           </div>
         ) : (
-          <div className="w-80 py-10 px-5 bg-neutral-900 flex flex-col gap-4">
+          <div className="w-90 py-10 px-5 bg-neutral-900 flex flex-col gap-4">
             <h1 className="text-xl font-semibold">
               Selected:{" "}
               <span className="text-green-400">
