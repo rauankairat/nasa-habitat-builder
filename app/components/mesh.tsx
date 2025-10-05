@@ -1,9 +1,28 @@
 "use client";
 
-import { createRef, useState } from "react";
+import { createRef, useEffect, useState } from "react";
 import { TransformControls } from "@react-three/drei";
 
 const Module = ({ mesh, orbitRef }: any) => {
+  const [snap, setSnap] = useState(0.05);
+
+  useEffect(() => {
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key == "Shift") setSnap(0.5);
+    };
+    const handleKeyUp = (event: KeyboardEvent) => {
+      if (event.key == "Shift") setSnap(0.05);
+    };
+
+    window.addEventListener("keydown", handleKeyDown);
+    window.addEventListener("keyup", handleKeyUp);
+
+    return () => {
+      window.removeEventListener("keydown", handleKeyDown);
+      window.removeEventListener("keyup", handleKeyUp);
+    };
+  }, []);
+
   const meshRef = createRef<any>();
   const controlRef = createRef<any>();
 
@@ -21,7 +40,7 @@ const Module = ({ mesh, orbitRef }: any) => {
       onMouseUp={() => {
         orbitRef.current.enabled = true;
       }}
-      translationSnap={0.1}
+      translationSnap={snap}
       showX={isTransformControlling}
       showY={isTransformControlling}
       showZ={isTransformControlling}
@@ -32,7 +51,9 @@ const Module = ({ mesh, orbitRef }: any) => {
       <mesh
         ref={meshRef.current}
         position={[0, 0, 0]}
-        onClick={() => {
+        onClick={(event) => {
+          console.log(event);
+
           if (isObjectChaning) {
             setIsTransformControlling(true);
             setIsObjectChanging(false);
