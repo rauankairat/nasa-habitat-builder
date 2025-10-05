@@ -5,7 +5,7 @@ import { Canvas } from "@react-three/fiber";
 import { Environment, OrbitControls } from "@react-three/drei";
 import Module from "./components/mesh";
 import { Box3, Vector3 } from "three";
-import { GlobalUnitMultiplier } from "./utils";
+import { GlobalUnitMultiplier, unCamelCase } from "./utils";
 
 export default function Home() {
   const orbitRef = useRef<any>(null);
@@ -45,15 +45,6 @@ export default function Home() {
     color: string,
     stats?: Record<string, number>
   ) => {
-    const currentCrew = modules.filter((m) => m.type === "sleep").length * 2;
-
-    if (type === "sleep" && currentCrew + 2 > crewLimit) {
-      alert(
-        `Crew capacity limit reached (${currentCrew}/${crewLimit}). Remove a sleep pod to add more crew.`
-      );
-      return;
-    }
-
     const moduleStats = stats || defaultModuleStats[type] || {};
 
     setModules((prev) => [
@@ -93,96 +84,155 @@ export default function Home() {
   }, [sizes, shape]);
 
   const stats = {
-    crew: modules.filter((m) => m.type === "sleep").length * 2,
-    food_needed: modules.filter((m) => m.type === "sleep").length * 3,
-    food_have: modules.filter((m) => m.type === "food").length * 30,
-    waste_have: modules.filter((m) => m.type === "waste").length * 5, //edit
-    waste_needed: modules.filter((m) => m.type === "sleep").length * 5, //edit
-    storage: modules.filter((m) => m.type === "storage").length * 5, //edit
-    water_needed:
-      modules.filter((m) => m.type === "sleep").length * 5 +
-      modules.filter((m) => m.type === "food").length * 5, //edit, //edit
-    water_have: modules.filter((m) => m.type === "water").length * 5, //edit
-    comms: modules.filter((m) => m.type === "comms").length * 5, //edit
-    corecontrol: modules.filter((m) => m.type === "corecontrol").length * 5, //edit
-    medical: modules.filter((m) => m.type === "medical").length * 5, //edit
-    exercise: modules.filter((m) => m.type === "exercise").length * 5, //edit
-    labs: modules.filter((m) => m.type === "labs").length * 5, //edit
-    recreation: modules.filter((m) => m.type === "recreation").length * 5, //edit
-    power_needed:
-      modules.filter((m) => m.type === "sleep").length * 5 +
-      modules.filter((m) => m.type === "food").length * 5 +
-      modules.filter((m) => m.type === "water").length * 5 +
-      modules.filter((m) => m.type === "waste").length * 5 +
-      modules.filter((m) => m.type === "comms").length * 5 +
-      modules.filter((m) => m.type === "medical").length * 5 +
-      modules.filter((m) => m.type === "exercise").length * 5 +
-      modules.filter((m) => m.type === "labs").length * 5 +
-      modules.filter((m) => m.type === "recreation").length * 5 +
-      modules.filter((m) => m.type === "corecontrol").length * 5,
-    power_have: modules.filter((m) => m.type === "power").length * 5,
+    crewCapacity: modules.reduce((acc, m) => {
+      if (m.stats.crewCapacity) {
+        acc += m.stats.crewCapacity;
+      }
+      return acc;
+    }, 0),
+    foodNeeded: modules.reduce((acc, m) => {
+      if (m.stats.foodNeeded) {
+        acc += m.stats.foodNeeded;
+      }
+      return acc;
+    }, 0),
+    foodGenerated: modules.reduce((acc, m) => {
+      if (m.stats.foodGenerated) {
+        acc += m.stats.foodGenerated;
+      }
+      return acc;
+    }, 0),
+    wasteCapacity: modules.reduce((acc, m) => {
+      if (m.stats.wasteCapacity) {
+        acc += m.stats.wasteCapacity;
+      }
+      return acc;
+    }, 0),
+    wasteGenerated: modules.reduce((acc, m) => {
+      if (m.stats.wasteGenerated) {
+        acc += m.stats.wasteGenerated;
+      }
+      return acc;
+    }, 0),
+    storageSpace: modules.reduce((acc, m) => {
+      if (m.stats.storageSpace) {
+        acc += m.stats.storageSpace;
+      }
+      return acc;
+    }, 0),
+    waterNeeded: modules.reduce((acc, m) => {
+      if (m.stats.waterNeeded) {
+        acc += m.stats.waterNeeded;
+      }
+      return acc;
+    }, 0),
+    waterGenerated: modules.reduce((acc, m) => {
+      if (m.stats.waterGenerated) {
+        acc += m.stats.waterGenerated;
+      }
+      return acc;
+    }, 0),
+    bandwidth: modules.reduce((acc, m) => {
+      if (m.stats.bandwidth) {
+        acc += m.stats.bandwidth;
+      }
+      return acc;
+    }, 0),
+    corecontrol: modules.filter((m) => m.type === "corecontrol").length,
+    medicalCapacity: modules.reduce((acc, m) => {
+      if (m.stats.medicalCapacity) {
+        acc += m.stats.medicalCapacity;
+      }
+      return acc;
+    }, 0),
+    exerciseCapacity: modules.reduce((acc, m) => {
+      if (m.stats.exerciseCapacity) {
+        acc += m.stats.exerciseCapacity;
+      }
+      return acc;
+    }, 0),
+    workstationCapacity: modules.reduce((acc, m) => {
+      if (m.stats.workstationCapacity) {
+        acc += m.stats.workstationCapacity;
+      }
+      return acc;
+    }, 0),
+    recreationCapacity: modules.reduce((acc, m) => {
+      if (m.stats.recreationCapacity) {
+        acc += m.stats.recreationCapacity;
+      }
+      return acc;
+    }, 0),
+    powerNeeded: modules.reduce((acc, m) => {
+      if (m.stats.powerNeeded) {
+        acc += m.stats.powerNeeded;
+      }
+      return acc;
+    }, 0),
+    powerGenerated: modules.reduce((acc, m) => {
+      if (m.stats.powerGenerated) {
+        acc += m.stats.powerGenerated;
+      }
+      return acc;
+    }, 0),
   };
 
   const defaultModuleStats: Record<string, Record<string, number>> = {
     sleep: {
       crewCapacity: 2, // 2 crew per sleep module
-      power: 5, // kW
-      food: 3, // food units needed
-      water: 5, // water units needed
-      waste: 5, // waste units generated
+      powerNeeded: 5, // kW
+      foodNeeded: 3, // food units needed
+      waterNeeded: 5, // water units needed
+      wasteGenerated: 5,
     },
     storage: {
       storageSpace: 10, // m^3
     },
     food: {
-      power: 3, // kW
+      powerNeeded: 3, // kW
       foodGenerated: 20, // food units produced
-      foodNeeded: 0, // optional if hydroponics requires none?
-      waterUsage: 5, // water units used
     },
     water: {
-      power: 2, // kW
+      powerNeeded: 2, // kW
       waterGenerated: 20, // water units produced
-      waterNeeded: 0, // water units consumed
     },
     comms: {
-      power: 2,
-      crewCapacity: 0,
+      powerNeeded: 2,
       bandwidth: 10, // arbitrary bandwidth units
     },
     corecontrol: {
-      power: 5,
+      powerNeeded: 5,
     },
     waste: {
-      power: 2, // kW
+      powerNeeded: 2, // kW
       wasteCapacity: 10, // units of waste processed
     },
     power: {
       powerGenerated: 20,
     },
     medical: {
-      power: 3,
+      powerNeeded: 3,
       medicalCapacity: 5, // crew that can be treated
     },
     exercise: {
-      power: 3,
-      totalCapacity: 5, // number of crew that can use at once
+      powerNeeded: 3,
+      exerciseCapacity: 5, // number of crew that can use at once
     },
     recreation: {
-      power: 2,
-      recCapacity: 5, // number of crew using
+      powerNeeded: 2,
+      recreationCapacity: 5, // number of crew using
     },
     labs: {
-      power: 4,
-      workStationCapacity: 5, // number of crew supported
+      powerNeeded: 4,
+      workstationCapacity: 5, // number of crew supported
     },
   };
 
   return (
     <div className="flex h-screen">
-      <div className="h-full overflow-scroll pb-20 pr-4 w-90 bg-neutral-900 text-white ">
+      <div className="h-full overflow-scroll pb-20 pr-4 w-100 bg-neutral-900 text-white ">
         {selectedModule === undefined ? (
-          <div className="w-90 py-10 px-5 bg-neutral-900 flex flex-col gap-16">
+          <div className="w-100 py-10 px-5 bg-neutral-900 flex flex-col gap-16">
             <div className="flex flex-col gap-3">
               <h2 className="text-lg text-green-400 font-semibold">
                 Habitat Frame
@@ -345,35 +395,156 @@ export default function Home() {
               </div>
             </div>
 
-            <div className="flex flex-col gap-3">
+            <div className="flex flex-col gap-4 p-4 bg-neutral-800 rounded-md shadow-md">
               <h2 className="text-lg text-green-400 font-semibold">
                 Resources
               </h2>
-              <ul className="text-sm">
-                <li>
-                  Crew Capacity: {stats.crew} / {crewLimit}
-                </li>
-                <li>
-                  Food: {stats.food_needed}/{stats.food_have}
-                </li>
-                <li>
-                  Water Needed: {stats.water_needed}/{stats.water_have}
-                </li>
-                <li>
-                  Waste: {stats.waste_needed}/{stats.waste_have}
-                </li>
-                <li>Storage Space: {stats.storage}</li>
-                <li>Bandwidth: {stats.comms}</li>
-                <li>Medical Capacity: {stats.medical}</li>
-                <li>Work Station Capacity: {stats.labs}</li>
-                <li>
-                  Power: {stats.power_needed}/{stats.power_have} kW
-                </li>
-              </ul>
+              <div className="grid grid-cols-1 gap-2 text-sm">
+                <div className="flex justify-between items-center">
+                  <span>Crew Capacity:</span>
+                  <span
+                    className={
+                      stats.crewCapacity > crewLimit
+                        ? "text-red-500 font-bold"
+                        : ""
+                    }
+                  >
+                    {stats.crewCapacity} / {crewLimit}{" "}
+                    {stats.crewCapacity > crewLimit && "⚠️"}
+                  </span>
+                </div>
+
+                <div className="flex justify-between items-center">
+                  <span>Food Needed / Generated:</span>
+                  <span
+                    className={
+                      stats.foodGenerated < stats.foodNeeded
+                        ? "text-red-500 font-bold"
+                        : ""
+                    }
+                  >
+                    {stats.foodNeeded} / {stats.foodGenerated}{" "}
+                    {stats.foodGenerated < stats.foodNeeded && "⚠️"}
+                  </span>
+                </div>
+
+                <div className="flex justify-between items-center">
+                  <span>Water Needed / Generated:</span>
+                  <span
+                    className={
+                      stats.waterGenerated < stats.waterNeeded
+                        ? "text-red-500 font-bold"
+                        : ""
+                    }
+                  >
+                    {stats.waterNeeded} / {stats.waterGenerated}{" "}
+                    {stats.waterGenerated < stats.waterNeeded && "⚠️"}
+                  </span>
+                </div>
+
+                <div className="flex justify-between items-center">
+                  <span>Waste Generated / Capacity:</span>
+                  <span
+                    className={
+                      stats.wasteGenerated > stats.wasteCapacity
+                        ? "text-red-500 font-bold"
+                        : ""
+                    }
+                  >
+                    {stats.wasteGenerated} / {stats.wasteCapacity}{" "}
+                    {stats.wasteGenerated > stats.wasteCapacity && "⚠️"}
+                  </span>
+                </div>
+
+                <div className="flex justify-between items-center">
+                  <span>Storage Space:</span>
+                  <span>{stats.storageSpace}</span>
+                </div>
+
+                <div className="flex justify-between items-center">
+                  <span>Bandwidth:</span>
+                  <span>{stats.bandwidth}</span>
+                </div>
+
+                <div className="flex justify-between items-center">
+                  <span>Medical Capacity:</span>
+                  <span
+                    className={
+                      stats.medicalCapacity < stats.crewCapacity
+                        ? "text-red-500 font-bold"
+                        : ""
+                    }
+                  >
+                    {stats.medicalCapacity}{" "}
+                    {stats.medicalCapacity < stats.crewCapacity && "⚠️"}
+                  </span>
+                </div>
+
+                <div className="flex justify-between items-center">
+                  <span>Exercise Capacity:</span>
+                  <span
+                    className={
+                      stats.exerciseCapacity < stats.crewCapacity
+                        ? "text-red-500 font-bold"
+                        : ""
+                    }
+                  >
+                    {stats.exerciseCapacity}{" "}
+                    {stats.exerciseCapacity < stats.crewCapacity && "⚠️"}
+                  </span>
+                </div>
+
+                <div className="flex justify-between items-center">
+                  <span>Workstation Capacity:</span>
+                  <span
+                    className={
+                      stats.workstationCapacity < stats.crewCapacity
+                        ? "text-red-500 font-bold"
+                        : ""
+                    }
+                  >
+                    {stats.workstationCapacity}{" "}
+                    {stats.workstationCapacity < stats.crewCapacity && "⚠️"}
+                  </span>
+                </div>
+
+                <div className="flex justify-between items-center">
+                  <span>Recreation Capacity:</span>
+                  <span
+                    className={
+                      stats.recreationCapacity < stats.crewCapacity
+                        ? "text-red-500 font-bold"
+                        : ""
+                    }
+                  >
+                    {stats.recreationCapacity}{" "}
+                    {stats.recreationCapacity < stats.crewCapacity && "⚠️"}
+                  </span>
+                </div>
+
+                <div className="flex justify-between items-center">
+                  <span>Power Needed / Generated:</span>
+                  <span
+                    className={
+                      stats.powerGenerated < stats.powerNeeded
+                        ? "text-red-500 font-bold"
+                        : ""
+                    }
+                  >
+                    {stats.powerNeeded} / {stats.powerGenerated} kW{" "}
+                    {stats.powerGenerated < stats.powerNeeded && "⚠️"}
+                  </span>
+                </div>
+
+                <div className="flex justify-between items-center">
+                  <span>Central Command Modules:</span>
+                  <span>{stats.corecontrol}</span>
+                </div>
+              </div>
             </div>
           </div>
         ) : (
-          <div className="w-90 py-10 px-5 bg-neutral-900 flex flex-col gap-4">
+          <div className="w-100 py-10 px-5 bg-neutral-900 flex flex-col gap-4">
             <h1 className="text-xl font-semibold">
               Selected:{" "}
               <span className="text-green-400">
@@ -384,11 +555,49 @@ export default function Home() {
               Module-Type: {selectedModule.type}
             </p>
 
-            <p>
+            <p className="border border-neutral-400 rounded-sm text-center p-2 mb-4">
               {(selectedSize.x * GlobalUnitMultiplier).toFixed(2)}m X{" "}
               {(selectedSize.y * GlobalUnitMultiplier).toFixed(2)}m X{" "}
               {(selectedSize.z * GlobalUnitMultiplier).toFixed(2)}m
             </p>
+
+            {Object.keys(selectedModule.stats).map((key, i) => (
+              <div className="flex gap-2 items-center">
+                <label className="flex-1">
+                  {key == "power" && "⚡ "}
+                  {unCamelCase(key)}:
+                </label>
+                <input
+                  key={i}
+                  value={selectedModule.stats[key]}
+                  onChange={(e) => {
+                    const newValue = parseInt(e.target.value) || 0;
+
+                    setModules((prevModules) => {
+                      const updatedModules = prevModules.map((module) =>
+                        module.id === selectedModule.id
+                          ? {
+                              ...module,
+                              stats: {
+                                ...module.stats,
+                                [key]: newValue,
+                              },
+                            }
+                          : module
+                      );
+
+                      const updatedSelected = updatedModules.find(
+                        (m) => m.id === selectedModule.id
+                      );
+                      setSelectedModule(updatedSelected);
+
+                      return updatedModules;
+                    });
+                  }}
+                  className="p-2 bg-neutral-700 w-20"
+                />
+              </div>
+            ))}
 
             <button
               className="mt-10 bg-red-600 py-2 rounded-md"
@@ -429,6 +638,8 @@ export default function Home() {
                 wireframe
                 emissive="#0088ff"
                 emissiveIntensity={0.3}
+                opacity={0.3}
+                transparent={true}
               />
             </mesh>
           )}
@@ -449,6 +660,8 @@ export default function Home() {
                 wireframe
                 emissive="#0088ff"
                 emissiveIntensity={0.3}
+                opacity={0.3}
+                transparent={true}
               />
             </mesh>
           )}

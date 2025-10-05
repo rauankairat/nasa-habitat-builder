@@ -94,7 +94,11 @@ const Module = ({
         }}
       >
         <boxGeometry args={[0.5, 0.5, 0.5]} />
-        <meshStandardMaterial color={module.color} />
+        <meshStandardMaterial
+          color={module.color}
+          opacity={0.85}
+          transparent={true}
+        />
       </mesh>
     </TransformControls>
   );
