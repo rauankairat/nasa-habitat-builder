@@ -38,6 +38,16 @@ export default function Home() {
   const stats = {
     crew: modules.filter((m) => m.type === "sleep").length * 2,
     food: modules.filter((m) => m.type === "food").length * 30,
+    waste: modules.filter((m) => m.type === "waste").length * 5, //edit
+    storage: modules.filter((m) => m.type === "storage").length * 5, //edit
+    agro: modules.filter((m) => m.type === "agro").length * 5, //edit
+    water: modules.filter((m) => m.type === "water").length * 5, //edit
+    comms: modules.filter((m) => m.type === "comms").length * 5, //edit
+    corecontrol: modules.filter((m) => m.type === "corecontrol").length * 5, //edit
+    medical: modules.filter((m) => m.type === "medical").length * 5, //edit
+    exercise: modules.filter((m) => m.type === "exercise").length * 5, //edit
+    labs: modules.filter((m) => m.type === "labs").length * 5, //edit
+    recreation: modules.filter((m) => m.type === "recreation").length * 5, //edit
     power: modules.length * 5,
   };
 
@@ -93,25 +103,78 @@ export default function Home() {
                 </div>
               </div>
             </div>
-
             <div className="flex flex-col gap-3">
               <h2 className="text-lg text-green-400 font-semibold">
                 Module Adder
               </h2>
-              <div>
-                <button
-                  className="bg-blue-500 px-2 py-1 rounded mr-2"
-                  onClick={() => addModule("sleep")}
-                >
-                  Sleep Pod
-                </button>
-                <button
-                  className="bg-green-500 px-2 py-1 rounded"
-                  onClick={() => addModule("food")}
-                >
-                  Food Storage
-                </button>
-              </div>
+            <div className="flex flex-wrap gap-2">
+            <button
+              className="bg-blue-500 px-2 py-1 rounded mr-2"
+              onClick={() => addModule("sleep")}
+            >
+              Sleep Pod
+            </button>
+            <button
+              className="bg-green-500 px-2 py-1 rounded"
+              onClick={() => addModule("food")}
+            >
+              Food Storage
+            </button>
+            <button 
+              className="bg-gray-500 px-2 py-1 rounded" 
+              onClick={()=> addModule("waste")}
+            >
+              Waste
+            </button>
+            <button 
+              className="bg-red-500 px-2 py-1 rounded" 
+              onClick={()=> addModule("storage")}
+            >
+              Storage/Logistics
+            </button>
+            <button 
+              className="bg-purple-500 px-2 py-1 rounded" 
+              onClick={()=> addModule("water")}
+            >
+              Water
+            </button>
+                        <button 
+              className="bg-amber-500 px-2 py-1 rounded" 
+              onClick={()=> addModule("comms")}
+            >
+              Communication
+            </button>
+                        <button 
+              className="bg-pink-500 px-2 py-1 rounded" 
+              onClick={()=> addModule("corecontrol")}
+            >
+              Central Command
+            </button>
+                        <button 
+              className="bg-yellow-500 px-2 py-1 rounded" 
+              onClick={()=> addModule("medical")}
+            >
+              Medical
+            </button>
+                        <button 
+              className="bg-cyan-500 px-2 py-1 rounded" 
+              onClick={()=> addModule("exercise")}
+            >
+              Exercise
+            </button>
+                        <button 
+              className="bg-fuchsia-500 px-2 py-1 rounded" 
+              onClick={()=> addModule("labs")}
+            >
+              Laboratory/Research
+            </button>
+                        <button 
+              className="bg-stone-500 px-2 py-1 rounded" 
+              onClick={()=> addModule("recreation")}
+            >
+              Crew Common Quarters
+            </button>
+          </div>
             </div>
 
             <div className="flex flex-col gap-3">
