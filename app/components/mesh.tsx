@@ -3,7 +3,13 @@
 import { createRef, useEffect, useState } from "react";
 import { TransformControls } from "@react-three/drei";
 
-const Module = ({ mesh, orbitRef }: any) => {
+const Module = ({
+  module,
+  orbitRef,
+  isSelected,
+  selectThis,
+  unSelectThis,
+}: any) => {
   const [snap, setSnap] = useState(0.05);
 
   useEffect(() => {
@@ -26,11 +32,9 @@ const Module = ({ mesh, orbitRef }: any) => {
   const meshRef = createRef<any>();
   const controlRef = createRef<any>();
 
-  const [isTransformControlling, setIsTransformControlling] = useState(false);
-  const [isObjectChaning, setIsObjectChanging] = useState(false);
-
   return (
     <TransformControls
+      position={[0, 2.4, 0]}
       ref={controlRef}
       object={meshRef.current}
       mode="translate"
@@ -41,30 +45,14 @@ const Module = ({ mesh, orbitRef }: any) => {
         orbitRef.current.enabled = true;
       }}
       translationSnap={snap}
-      showX={isTransformControlling}
-      showY={isTransformControlling}
-      showZ={isTransformControlling}
-      onObjectChange={() => {
-        setIsObjectChanging(true);
-      }}
+      showX={isSelected}
+      showY={isSelected}
+      showZ={isSelected}
     >
-      <mesh
-        ref={meshRef.current}
-        position={[0, 0, 0]}
-        onClick={(event) => {
-          console.log(event);
-
-          if (isObjectChaning) {
-            setIsTransformControlling(true);
-            setIsObjectChanging(false);
-          } else {
-            setIsTransformControlling(!isTransformControlling);
-          }
-        }}
-      >
+      <mesh ref={meshRef.current} onClick={selectThis}>
         <boxGeometry args={[0.5, 0.5, 0.5]} />
         <meshStandardMaterial
-          color={mesh.type === "sleep" ? "cyan" : "orange"}
+          color={module.type === "sleep" ? "cyan" : "orange"}
         />
       </mesh>
     </TransformControls>
