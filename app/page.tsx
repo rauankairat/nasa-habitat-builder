@@ -1,8 +1,8 @@
 "use client";
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect, Suspense } from "react";
 
 import { Canvas } from "@react-three/fiber";
-import { Environment, OrbitControls } from "@react-three/drei";
+import { Environment, OrbitControls, useProgress } from "@react-three/drei";
 import Module from "./components/mesh";
 import { Box3, Vector3 } from "three";
 import { GlobalUnitMultiplier, unCamelCase } from "./utils";
@@ -11,6 +11,7 @@ export default function Home() {
   const orbitRef = useRef<any>(null);
   const habitatRef = useRef<any>(null);
 
+  const { progress } = useProgress();
   const [shape, setShape] = useState("capsule");
   const [sizes, setSizes] = useState([
     {
@@ -179,52 +180,52 @@ export default function Home() {
 
   const defaultModuleStats: Record<string, Record<string, number>> = {
     sleep: {
-      crewCapacity: 2, // 2 crew per sleep module
-      powerNeeded: 5, // kW
-      foodNeeded: 3, // food units needed
-      waterNeeded: 5, // water units needed
+      crewCapacity: 2,
+      powerNeeded: 5,
+      foodNeeded: 3,
+      waterNeeded: 5,
       wasteGenerated: 5,
     },
     storage: {
-      storageSpace: 10, // m^3
+      storageSpace: 10,
     },
     food: {
-      powerNeeded: 3, // kW
-      foodGenerated: 20, // food units produced
+      powerNeeded: 3,
+      foodGenerated: 20,
     },
     water: {
-      powerNeeded: 2, // kW
-      waterGenerated: 20, // water units produced
+      powerNeeded: 2,
+      waterGenerated: 20,
     },
     comms: {
       powerNeeded: 2,
-      bandwidth: 10, // arbitrary bandwidth units
+      bandwidth: 10,
     },
     corecontrol: {
       powerNeeded: 5,
     },
     waste: {
-      powerNeeded: 2, // kW
-      wasteCapacity: 10, // units of waste processed
+      powerNeeded: 2,
+      wasteCapacity: 10,
     },
     power: {
       powerGenerated: 20,
     },
     medical: {
       powerNeeded: 3,
-      medicalCapacity: 5, // crew that can be treated
+      medicalCapacity: 5,
     },
     exercise: {
       powerNeeded: 3,
-      exerciseCapacity: 5, // number of crew that can use at once
+      exerciseCapacity: 5,
     },
     recreation: {
       powerNeeded: 2,
-      recreationCapacity: 5, // number of crew using
+      recreationCapacity: 5,
     },
     labs: {
       powerNeeded: 4,
-      workstationCapacity: 5, // number of crew supported
+      workstationCapacity: 5,
     },
   };
 
@@ -614,7 +615,12 @@ export default function Home() {
         )}
       </div>
 
-      <div className="flex-1 bg-black">
+      <div className="flex-1 bg-black relative">
+        {progress != 100 && (
+          <div className="absolute top-[50%] left-[50%] translate-y-[-50%] translate-x-[-50%] text-white font-semibold text-3xl">
+            Loading {progress.toFixed(0)}%
+          </div>
+        )}
         <Canvas
           camera={{ position: [5, 5, 5] }}
           onPointerMissed={() => setSelectedModule(undefined)}
